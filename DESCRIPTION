@@ -1,0 +1,24 @@
+Package: dMeasureBillings
+Type: Package
+Title: Billings module for dMeasure
+Version: 0.1.0
+Author: David Fong
+Maintainer: David Fong <vkelim@bigpond.com>
+Description: List services (billings) provided by clinicians
+License: LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports:
+    dplyr,
+    dbplyr,
+    R6,
+    pipeR,
+    dMeasure
+Suggests:
+    shiny
+RoxygenNote: 6.1.1
+Collate: 
+    'r6_helpers.R'
+    'Billings.R'
+    'services.R'
+    'utils-pipe.R'
