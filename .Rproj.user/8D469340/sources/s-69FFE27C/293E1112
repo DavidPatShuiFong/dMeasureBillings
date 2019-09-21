@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1569039899486.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3228823002",
+    "id" : "293E1112",
+    "lastKnownWriteTime" : 1569039906,
+    "last_content_update" : 1569039906655,
+    "path" : "C:/Users/Public/Rprojects/dMeasureBillings/R/utils-pipe.R",
+    "project_path" : "R/utils-pipe.R",
+    "properties" : {
+        "cursorPosition" : "11,0",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
