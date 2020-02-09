@@ -79,6 +79,7 @@ billed_appointments <- function(dMeasureBillings_obj,
 
           if (self$dM$emr_db$is_open()) {
             # only if EMR database is open
+
             if (!lazy) {
               self$dM$list_appointments(date_from, date_to, clinicians, lazy = FALSE)
               # if not 'lazy' evaluation, then re-calculate self$appointments_list
@@ -402,6 +403,20 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
   # no additional clinician filtering based on privileges or user restrictions
   if (is.na(own_billings)) {
     own_billings <- self$own_billings
+  }
+
+  x <- self$dM$check_subscription(clinicians,
+                                  date_from, date_to,
+                                  adjustdate = TRUE)
+  # check subscription, which depends on selected
+  # clinicians and selected date range
+  # adjustdate is TRUE, so should provoke a change
+  # in the appointment list if in reactive environment
+  if (x$changedate) {
+    # this will happen if dates are changed
+    date_from <- x$date_from
+    date_to <- x$date_to
+    warning("A chosen user has no subscription for chosen date range. Dates changed (minimum one week old).")
   }
 
   if (!lazy) {
