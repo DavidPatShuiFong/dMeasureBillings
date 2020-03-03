@@ -1,5 +1,10 @@
 Changelog
 
+0.2.1 - 3rd March 2020
+======================
+
+* better filtered database retrieval in $list_services
+
 0.2.0 - 9th February 2020
 =========================
 

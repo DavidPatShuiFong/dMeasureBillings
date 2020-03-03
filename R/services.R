@@ -171,25 +171,37 @@ list_services <- function(dMeasureBillings_obj,
           if (self$dM$emr_db$is_open()) {
             # only if EMR database is open
 
-            self$services_list <- self$dM$db$servicesRaw %>>%
-              dplyr::filter(ServiceDate >= date_from & ServiceDate <= date_to) %>>%
-              dplyr::left_join(self$dM$db$invoices, by = "InvoiceID") %>>%
-              dplyr::left_join(self$dM$db$users %>>%
-                                 dplyr::select(UserID, Title,
-                                               PFirstname = Firstname, PSurname = Surname),
-                               by = "UserID") %>>%
-              dplyr::left_join(self$dM$db$patients %>>%
-                                 dplyr::select(InternalID, Firstname, Surname, DOB),
-                               by = "InternalID") %>>%
+            provider_list <- self$dM$UserFullConfig %>>%
+              dplyr::select(UserID, Provider = Fullname) %>>% # just need two fields
+              dplyr::filter(Provider %in% clinicians) # only users in clinicians list
+
+            services_list <- self$dM$db$servicesRaw %>>%
+              dplyr::filter(ServiceDate >= date_from & ServiceDate <= date_to)
+
+            invoiceID <- c(services_list %>>% dplyr::pull(InvoiceID), -1)
+            userID <- c(provider_list %>>% dplyr::pull(UserID), -1)
+            invoices_list <- self$dM$db$invoices %>>%
+              dplyr::filter(InvoiceID %in% invoiceID) %>>%
+              dplyr::filter(UserID %in% userID)
+
+            internalID <- c(invoices_list %>>% dplyr::pull(InternalID), -1)
+            patients_list <- self$dM$db$patients %>>%
+              dplyr::select(InternalID, Firstname, Surname, DOB) %>>%
+              dplyr::filter(InternalID %in% internalID)
+
+            services_list <- services_list %>>%
+              dplyr::left_join(invoices_list, by = "InvoiceID") %>>%
+              dplyr::left_join(patients_list, by = "InternalID") %>>%
               dplyr::collect() %>>%
+              dplyr::left_join(provider_list, by = "UserID") %>>%
               dplyr::mutate(ServiceDate = as.Date(ServiceDate),
                             DOB = as.Date(DOB),
-                            Provider = paste(Title, PFirstname, PSurname),
                             Patient = paste(Firstname, Surname),
                             Age = dMeasure::calc_age(DOB, ServiceDate)) %>>%
-              dplyr::filter(Provider %in% clinicians) %>>%
               dplyr::select(Patient, InternalID, ServiceDate, MBSItem, Description, Provider,
                             DOB, Age)
+
+            self$services_list <- services_list
           }
           return(self$services_list)
         })
@@ -434,33 +446,33 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
                        dplyr::rename(Date = VisitDate),
                      by = c("Patient", "InternalID", "Date", "DOB", "Age", "Provider")) %>>%
     dplyr::full_join(self$services_list %>>%
-    {if (screentag & own_billings) {
-      # if 'screen' (not print) display
-      # and 'own_billings'. if own_billings is FALSE then
-      #  the tags will be provided by self$service_list_allclinicians below
-      dplyr::mutate(., billingtag =
-                      dMeasure::semantic_button(
-                        MBSItem,
-                        colour = 'green',
-                        popuphtml = paste0('<h4>', ServiceDate,
-                                           "</h3><p><font size=\'+0\'>",
-                                           Description, '</p>')))
-    } else {.}} %>>%
-    {if (screentag_print & own_billings) {
-      dplyr::mutate(., billingtag_print = MBSItem)
-    } else {.}} %>>%
-      dplyr::select(-c(MBSItem, Description)) %>>%
-      dplyr::group_by(Patient, InternalID, ServiceDate, Provider, DOB, Age) %>>%
-      # gathers services from the same date/provider into a single row
-      {if (screentag & own_billings) {
-        dplyr::summarise(., billingtag = paste(billingtag, collapse = ""))
-      } else {.} } %>>%
-      {if (screentag_print & own_billings) {
-        dplyr::summarise(., billingtag_print = paste(billingtag_print, collapse = ", "))
-      } else {.} } %>>%
-      dplyr::ungroup() %>>%
-      dplyr::rename(Date = ServiceDate),
-    by = c("Patient", "InternalID", "Date","DOB", "Age", "Provider")) %>>%
+                       {if (screentag & own_billings) {
+                         # if 'screen' (not print) display
+                         # and 'own_billings'. if own_billings is FALSE then
+                         #  the tags will be provided by self$service_list_allclinicians below
+                         dplyr::mutate(., billingtag =
+                                         dMeasure::semantic_button(
+                                           MBSItem,
+                                           colour = 'green',
+                                           popuphtml = paste0('<h4>', ServiceDate,
+                                                              "</h3><p><font size=\'+0\'>",
+                                                              Description, '</p>')))
+                       } else {.}} %>>%
+                       {if (screentag_print & own_billings) {
+                         dplyr::mutate(., billingtag_print = MBSItem)
+                       } else {.}} %>>%
+                       dplyr::select(-c(MBSItem, Description)) %>>%
+                       dplyr::group_by(Patient, InternalID, ServiceDate, Provider, DOB, Age) %>>%
+                       # gathers services from the same date/provider into a single row
+                       {if (screentag & own_billings) {
+                         dplyr::summarise(., billingtag = paste(billingtag, collapse = ""))
+                       } else {.} } %>>%
+                       {if (screentag_print & own_billings) {
+                         dplyr::summarise(., billingtag_print = paste(billingtag_print, collapse = ", "))
+                       } else {.} } %>>%
+                       dplyr::ungroup() %>>%
+                       dplyr::rename(Date = ServiceDate),
+                     by = c("Patient", "InternalID", "Date","DOB", "Age", "Provider")) %>>%
     {if (!own_billings)
       # if displaying 'all' billings for the contacted patient (on the 'contact' day)
       # if own_billings is TRUE, then only billings done by the listed
@@ -468,18 +480,18 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
     {dplyr::full_join(. ,
                       # billings and billings_tag from self$services_list
                       self$services_list_allclinicians %>>%
-                      {if (screentag) {
-                        dplyr::mutate(., billingtag =
-                                        dMeasure::semantic_button(
-                                          MBSItem,
-                                          colour = 'green',
-                                          popuphtml = paste0('<h4>', ServiceDate,
-                                                             "</h3><p><font size=\'+0\'>",
-                                                             Description, '</p>')))
-                      } else {.}} %>>%
-                      {if (screentag_print) {
-                        dplyr::mutate(., billingtag_print = MBSItem)
-                      } else {.}} %>>%
+                        {if (screentag) {
+                          dplyr::mutate(., billingtag =
+                                          dMeasure::semantic_button(
+                                            MBSItem,
+                                            colour = 'green',
+                                            popuphtml = paste0('<h4>', ServiceDate,
+                                                               "</h3><p><font size=\'+0\'>",
+                                                               Description, '</p>')))
+                        } else {.}} %>>%
+                        {if (screentag_print) {
+                          dplyr::mutate(., billingtag_print = MBSItem)
+                        } else {.}} %>>%
                         dplyr::select(-c(MBSItem, Description)) %>>%
                         dplyr::group_by(Patient, InternalID, ServiceDate, DOB, Age) %>>%
                         # gathers services from the same date/provider into a single row
@@ -494,13 +506,13 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
                       by = c("Patient", "InternalID", "Date", "DOB", "Age"))}
       else {.}} %>>%
     # merges appointments and visit and services lists
-      {if (screentag) {dplyr::select(., Patient, InternalID, Date, AppointmentTime,
-                                     Status, VisitType, Provider, DOB, Age, billingtag)
-      } else {.}} %>>%
-      {if (screentag_print) {
-        dplyr::select(., Patient, InternalID, Date, AppointmentTime,
-                      Status, VisitType, Provider, DOB, Age, billingtag_print)
-      } else {.}}
+    {if (screentag) {dplyr::select(., Patient, InternalID, Date, AppointmentTime,
+                                   Status, VisitType, Provider, DOB, Age, billingtag)
+    } else {.}} %>>%
+    {if (screentag_print) {
+      dplyr::select(., Patient, InternalID, Date, AppointmentTime,
+                    Status, VisitType, Provider, DOB, Age, billingtag_print)
+    } else {.}}
 
   self$billings_list <- df
 
