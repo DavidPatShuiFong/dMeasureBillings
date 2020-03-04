@@ -176,23 +176,23 @@ list_services <- function(dMeasureBillings_obj,
               dplyr::filter(Provider %in% clinicians) # only users in clinicians list
 
             services_list <- self$dM$db$servicesRaw %>>%
-              dplyr::filter(ServiceDate >= date_from & ServiceDate <= date_to)
+              dplyr::filter(ServiceDate >= date_from & ServiceDate <= date_to) %>>%
+              dplyr::collect()
 
             invoiceID <- c(services_list %>>% dplyr::pull(InvoiceID), -1)
             userID <- c(provider_list %>>% dplyr::pull(UserID), -1)
             invoices_list <- self$dM$db$invoices %>>%
               dplyr::filter(InvoiceID %in% invoiceID) %>>%
-              dplyr::filter(UserID %in% userID)
+              dplyr::filter(UserID %in% userID) %>>% dplyr::collect()
 
             internalID <- c(invoices_list %>>% dplyr::pull(InternalID), -1)
             patients_list <- self$dM$db$patients %>>%
               dplyr::select(InternalID, Firstname, Surname, DOB) %>>%
-              dplyr::filter(InternalID %in% internalID)
+              dplyr::filter(InternalID %in% internalID) %>>% dplyr::collect()
 
             services_list <- services_list %>>%
               dplyr::left_join(invoices_list, by = "InvoiceID") %>>%
               dplyr::left_join(patients_list, by = "InternalID") %>>%
-              dplyr::collect() %>>%
               dplyr::left_join(provider_list, by = "UserID") %>>%
               dplyr::mutate(ServiceDate = as.Date(ServiceDate),
                             DOB = as.Date(DOB),
