@@ -190,8 +190,10 @@ list_services <- function(dMeasureBillings_obj,
               dplyr::select(InternalID, Firstname, Surname, DOB) %>>%
               dplyr::filter(InternalID %in% internalID) %>>% dplyr::collect()
 
-            services_list <- services_list %>>%
-              dplyr::left_join(invoices_list, by = "InvoiceID") %>>%
+            services_list <- invoices_list %>>%
+              # invoices list has been filtered for userid
+              # whereas services_list has not yet been filtered for userid
+              dplyr::left_join(services_list, by = "InvoiceID") %>>%
               dplyr::left_join(patients_list, by = "InternalID") %>>%
               dplyr::left_join(provider_list, by = "UserID") %>>%
               dplyr::mutate(ServiceDate = as.Date(ServiceDate),
