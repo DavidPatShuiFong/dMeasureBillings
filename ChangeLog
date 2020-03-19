@@ -1,5 +1,11 @@
 Changelog
 
+0.3.0 - 19th March 2020
+=======================
+
+* InternalID filtering available for list_services and list_services_allclinicians
+* add Provider return to list_services_allclinicians
+
 0.2.2 - 4th March 2020
 ======================
 

@@ -4,8 +4,15 @@
 \alias{appointments_billings_sameday}
 \title{Billings done on same day as appointments or visit}
 \usage{
-appointments_billings_sameday(dMeasureBillings_obj, date_from, date_to,
-  clinicians, lazy, screentag, screentag_print)
+appointments_billings_sameday(
+  dMeasureBillings_obj,
+  date_from,
+  date_to,
+  clinicians,
+  lazy,
+  screentag,
+  screentag_print
+)
 }
 \arguments{
 \item{dMeasureBillings_obj}{dMeasureBillings R6 object}

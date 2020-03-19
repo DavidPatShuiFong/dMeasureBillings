@@ -4,8 +4,14 @@
 \alias{list_services}
 \title{List of services with date of birth}
 \usage{
-list_services(dMeasureBillings_obj, date_from = NA, date_to = NA,
-  clinicians = NA, lazy = FALSE)
+list_services(
+  dMeasureBillings_obj,
+  date_from = NA,
+  date_to = NA,
+  clinicians = NA,
+  internalID = NA,
+  lazy = FALSE
+)
 }
 \arguments{
 \item{dMeasureBillings_obj}{dMeasureBillings R6 object}
@@ -15,6 +21,8 @@ list_services(dMeasureBillings_obj, date_from = NA, date_to = NA,
 \item{date_to}{default is $date_b end date, inclusive (date object)}
 
 \item{clinicians}{default is $clinicians. list of clinicians to view}
+
+\item{internalID}{default is NA (include all). vector of internal IDs to include (filter)}
 
 \item{lazy}{if lazy=TRUE, then don't re-calculate $appointments_filtered to calculate}
 }
