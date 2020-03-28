@@ -1,5 +1,10 @@
 Changelog
 
+0.3.1 - 28th March 2020
+=======================
+
+* fix error if no internalID in list_billings
+
 0.3.0 - 19th March 2020
 =======================
 

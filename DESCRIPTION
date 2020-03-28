@@ -1,7 +1,7 @@
 Package: dMeasureBillings
 Type: Package
 Title: Billings module for dMeasure
-Version: 0.3.0
+Version: 0.3.1
 Author: David Fong
 Maintainer: David Fong <vkelim@bigpond.com>
 Description: List services (billings) provided by clinicians
