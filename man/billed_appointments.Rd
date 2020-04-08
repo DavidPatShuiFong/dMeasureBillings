@@ -4,14 +4,8 @@
 \alias{billed_appointments}
 \title{List of appointments with billings}
 \usage{
-billed_appointments(
-  dMeasureBillings_obj,
-  date_from = NA,
-  date_to = NA,
-  clinicians = NA,
-  status = NA,
-  lazy = FALSE
-)
+billed_appointments(dMeasureBillings_obj, date_from = NA, date_to = NA,
+  clinicians = NA, status = NA, lazy = FALSE)
 }
 \arguments{
 \item{dMeasureBillings_obj}{dMeasureBillings R6 object}

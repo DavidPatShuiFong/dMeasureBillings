@@ -465,13 +465,12 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
                        dplyr::rename(Date = VisitDate),
                      by = c("Patient", "InternalID", "Date", "DOB", "Age", "Provider"))
   # this join just adds VisitType
-  intID <- df %>>% dplyr::pull(InternalID) %>>% c(-1)
 
   if (!lazy) {
     if (own_billings) {
-      self$list_services(date_from, date_to, clinicians, intID, lazy = FALSE)
+      self$list_services(date_from, date_to, clinicians, lazy = FALSE)
     } else {
-      self$list_services_allclinicians(date_from, date_to, intID, lazy = FALSE)
+      self$list_services_allclinicians(date_from, date_to, lazy = FALSE)
     }
   }
   if (own_billings) {

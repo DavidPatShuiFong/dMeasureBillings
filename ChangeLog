@@ -1,5 +1,10 @@
 Changelog
 
+0.3.2 - 8th April 2020
+======================
+
+* fix error where list_billings only shows billings for patients in appointment book
+
 0.3.1 - 28th March 2020
 =======================
 

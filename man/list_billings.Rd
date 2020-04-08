@@ -4,16 +4,8 @@
 \alias{list_billings}
 \title{Billings, appointments and visit combined view}
 \usage{
-list_billings(
-  dMeasureBillings_obj,
-  date_from,
-  date_to,
-  clinicians,
-  own_billings,
-  lazy,
-  screentag,
-  screentag_print
-)
+list_billings(dMeasureBillings_obj, date_from, date_to, clinicians,
+  own_billings, lazy, screentag, screentag_print)
 }
 \arguments{
 \item{dMeasureBillings_obj}{dMeasureBillings R6 object}
