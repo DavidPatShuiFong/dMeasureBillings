@@ -4,8 +4,14 @@
 \alias{list_services}
 \title{List of services with date of birth}
 \usage{
-list_services(dMeasureBillings_obj, date_from = NA, date_to = NA,
-  clinicians = NA, internalID = NA, lazy = FALSE)
+list_services(
+  dMeasureBillings_obj,
+  date_from = NA,
+  date_to = NA,
+  clinicians = NA,
+  internalID = NA,
+  lazy = FALSE
+)
 }
 \arguments{
 \item{dMeasureBillings_obj}{dMeasureBillings R6 object}
