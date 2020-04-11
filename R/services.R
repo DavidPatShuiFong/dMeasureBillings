@@ -465,6 +465,7 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
                        dplyr::rename(Date = VisitDate),
                      by = c("Patient", "InternalID", "Date", "DOB", "Age", "Provider"))
   # this join just adds VisitType
+  apptID <- df %>>% dplyr::pull(InternalID) %>>% c(-1)
 
   if (!lazy) {
     if (own_billings) {
@@ -476,7 +477,8 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
   if (own_billings) {
     services_list <- self$services_list
   } else {
-    services_list <- self$services_list_allclinicians
+    services_list <- self$services_list %>>%
+      rbind(self$services_list_allclinicians %>>% dplyr::filter(InternalID %in% apptID))
   }
 
   df <- df %>>%
@@ -490,14 +492,16 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
                                            MBSItem,
                                            colour = 'green',
                                            popuphtml = paste0('<h4>', ServiceDate,
-                                                              "</h3><p><font size=\'+0\'>",
-                                                              Description, '</p>')))
+                                                              "</h4><p><font size=\'+0\'>",
+                                                              Description, '(',
+                                                              Provider, ')</p>')))
                        } else {.}} %>>%
                        {if (screentag_print) {
-                         dplyr::mutate(., billingtag_print = MBSItem)
+                         dplyr::mutate(., billingtag_print = paste0(MBSItem, ' [',
+                                                                    Provider, ']'))
                        } else {.}} %>>%
-                       dplyr::select(-c(MBSItem, Description)) %>>%
-                       dplyr::group_by(Patient, InternalID, ServiceDate, Provider, DOB, Age) %>>%
+                       dplyr::select(-c(MBSItem, Description, Provider)) %>>%
+                       dplyr::group_by(Patient, InternalID, ServiceDate, DOB, Age) %>>%
                        # gathers services from the same date/provider into a single row
                        {if (screentag) {
                          dplyr::summarise(., billingtag = paste(billingtag, collapse = ""))
@@ -507,7 +511,7 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
                        } else {.} } %>>%
                        dplyr::ungroup() %>>%
                        dplyr::rename(Date = ServiceDate),
-                     by = c("Patient", "InternalID", "Date","DOB", "Age", "Provider")) %>>%
+                     by = c("Patient", "InternalID", "Date","DOB", "Age")) %>>%
     # merges appointments and visit and services lists
     {if (screentag) {dplyr::select(., Patient, InternalID, Date, AppointmentTime,
                                    Status, VisitType, Provider, DOB, Age, billingtag)
