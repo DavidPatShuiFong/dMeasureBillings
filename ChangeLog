@@ -1,5 +1,26 @@
 Changelog
 
+0.3.3 - 10th April 2020
+=======================
+
+* add rintrojs introduction (steps_introductioin_df)
+
+0.3.2 - 8th April 2020
+======================
+
+* fix error where list_billings only shows billings for patients in appointment book
+
+0.3.1 - 28th March 2020
+=======================
+
+* fix error if no internalID in list_billings
+
+0.3.0 - 19th March 2020
+=======================
+
+* InternalID filtering available for list_services and list_services_allclinicians
+* add Provider return to list_services_allclinicians
+
 0.2.2 - 4th March 2020
 ======================
 
