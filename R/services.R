@@ -471,14 +471,18 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
     if (own_billings) {
       self$list_services(date_from, date_to, clinicians, lazy = FALSE)
     } else {
-      self$list_services_allclinicians(date_from, date_to, lazy = FALSE)
+      self$list_services_allclinicians(date_from, date_to, internalID = apptID, lazy = FALSE)
     }
   }
   if (own_billings) {
     services_list <- self$services_list
   } else {
     services_list <- self$services_list %>>%
-      rbind(self$services_list_allclinicians %>>% dplyr::filter(InternalID %in% apptID))
+      rbind(self$services_list_allclinicians) %>>%
+      dplyr::distinct() # remove the duplicates
+    # self$services_list might not always be a subset of self$services_list_allclinicians
+    # because the second dataframe has been restricted by apptID
+    # and it is possible that items in self$services_list do not have an appointment
   }
 
   df <- df %>>%
