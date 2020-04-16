@@ -497,7 +497,7 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
                                            colour = 'green',
                                            popuphtml = paste0('<h4>', ServiceDate,
                                                               "</h4><p><font size=\'+0\'>",
-                                                              Description, '(',
+                                                              Description, ' (',
                                                               Provider, ')</p>')))
                        } else {.}} %>>%
                        {if (screentag_print) {
@@ -506,7 +506,7 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
                        } else {.}} %>>%
                        dplyr::select(-c(MBSItem, Description, Provider)) %>>%
                        dplyr::group_by(Patient, InternalID, ServiceDate, DOB, Age) %>>%
-                       # gathers services from the same date/provider into a single row
+                       # gathers services from the same date into a single row
                        {if (screentag) {
                          dplyr::summarise(., billingtag = paste(billingtag, collapse = ""))
                        } else {.} } %>>%
