@@ -12,7 +12,7 @@ steps_introduction_df(element_name)
 \description{
 returns a dataframe of rintrojs steps
 
-requires pro-forma steps from dMeasure
+requires pro-forma steps from DailyMeasure
 }
 \details{
 rintrojs steps for billings module

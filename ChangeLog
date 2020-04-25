@@ -1,5 +1,11 @@
 Changelog
 
+0.3.4 - 25th April 2020
+=======================
+
+* rawbilling option for list_billings
+* filter out MBSItem == 0 for list_services
+
 0.3.3 - 10th April 2020
 =======================
 

@@ -23,6 +23,7 @@ dMeasureBillings class
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dMeasureBillings$new(dMeasure_obj)}\if{html}{\out{</div>}}
@@ -31,6 +32,7 @@ dMeasureBillings class
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-billed_appointments"></a>}}
+\if{latex}{\out{\hypertarget{method-billed_appointments}{}}}
 \subsection{Method \code{billed_appointments()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dMeasureBillings$billed_appointments(
@@ -45,6 +47,7 @@ dMeasureBillings class
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-list_services"></a>}}
+\if{latex}{\out{\hypertarget{method-list_services}{}}}
 \subsection{Method \code{list_services()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dMeasureBillings$list_services(
@@ -59,6 +62,7 @@ dMeasureBillings class
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-list_services_allclinicians"></a>}}
+\if{latex}{\out{\hypertarget{method-list_services_allclinicians}{}}}
 \subsection{Method \code{list_services_allclinicians()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dMeasureBillings$list_services_allclinicians(
@@ -72,6 +76,7 @@ dMeasureBillings class
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-appointments_billings_sameday"></a>}}
+\if{latex}{\out{\hypertarget{method-appointments_billings_sameday}{}}}
 \subsection{Method \code{appointments_billings_sameday()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dMeasureBillings$appointments_billings_sameday(
@@ -87,6 +92,7 @@ dMeasureBillings class
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-list_billings"></a>}}
+\if{latex}{\out{\hypertarget{method-list_billings}{}}}
 \subsection{Method \code{list_billings()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dMeasureBillings$list_billings(
@@ -96,13 +102,15 @@ dMeasureBillings class
   own_billings = NA,
   lazy = FALSE,
   screentag = FALSE,
-  screentag_print = TRUE
+  screentag_print = TRUE,
+  rawbilling = FALSE
 )}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

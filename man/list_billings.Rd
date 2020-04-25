@@ -12,7 +12,8 @@ list_billings(
   own_billings,
   lazy,
   screentag,
-  screentag_print
+  screentag_print,
+  rawbilling = FALSE
 )
 }
 \arguments{
@@ -37,9 +38,12 @@ list_billings(
 \item{screentag}{(default FALSE) optionally add a fomantic/semantic HTML description of 'action'}
 
 \item{screentag_print}{(default TRUE) optionally add a 'printable' description of 'action'}
+
+\item{rawbilling}{show vector of billings without print formatting in column 'billings'}
 }
 \value{
 list of appointments (with patient details)
+  if rawbilling is TRUE, then return 'billings' collumn without print/HTML formatting
 }
 \description{
 filter to chosen date range and practitioners

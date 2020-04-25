@@ -195,7 +195,10 @@ list_services <- function(dMeasureBillings_obj,
         dplyr::filter(Provider %in% clinicians) # only users in clinicians list
 
       services_list <- self$dM$db$servicesRaw %>>%
-        dplyr::filter(ServiceDate >= date_from & ServiceDate <= date_to) %>>%
+        dplyr::filter(
+          ServiceDate >= date_from & ServiceDate <= date_to,
+          MBSItem != 0
+        ) %>>%
         dplyr::collect()
 
       invoiceID <- c(services_list %>>% dplyr::pull(InvoiceID), -1)
@@ -480,11 +483,13 @@ appointments_billings_sameday <- function(dMeasureBillings_obj, date_from, date_
 #' @param lazy if TRUE, then do not recalculate appointment list. otherwise, re-calculate
 #' @param screentag (default FALSE) optionally add a fomantic/semantic HTML description of 'action'
 #' @param screentag_print (default TRUE) optionally add a 'printable' description of 'action'
+#' @param rawbilling show vector of billings without print formatting in column 'billings'
 #'
 #' @return list of appointments (with patient details)
+#'   if rawbilling is TRUE, then return 'billings' collumn without print/HTML formatting
 #' @export
 list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, own_billings,
-                          lazy, screentag, screentag_print) {
+                          lazy, screentag, screentag_print, rawbilling = FALSE) {
   dMeasureBillings_obj$list_billings(
     date_from, date_to, clinicians, own_billings,
     lazy, screentag, screentag_print
@@ -496,7 +501,8 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
                                                     own_billings = NA,
                                                     lazy = FALSE,
                                                     screentag = FALSE,
-                                                    screentag_print = TRUE) {
+                                                    screentag_print = TRUE,
+                                                    rawbilling = FALSE) {
   if (is.na(date_from)) {
     date_from <- self$dM$date_a
   }
@@ -557,7 +563,11 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
     # because the second dataframe has been restricted by apptID
     # and it is possible that items in self$services_list do not have an appointment
   }
-
+  if (rawbilling) {
+    services_list <- services_list %>>%
+      dplyr::mutate(billing = MBSItem) # a copy of MBSitem
+    # used to generate 'billings' column if 'rawbilling' option is chosen
+  }
   df <- df %>>%
     dplyr::full_join(services_list %>>% {
       if (screentag) {
@@ -595,13 +605,32 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
       # gathers services from the same date into a single row
       {
         if (screentag) {
-          dplyr::summarise(., billingtag = paste(billingtag, collapse = ""))
+          if (rawbilling) {
+            dplyr::summarise(.,
+              billingtag = paste(billingtag, collapse = ""),
+              billings = I(list(c(billing)))
+              # need I(list()) to place list in a data-frame
+            )
+          } else {
+            dplyr::summarise(.,
+              billingtag = paste(billingtag, collapse = "")
+            )
+          }
         } else {
           .
         }
       } %>>% {
         if (screentag_print) {
-          dplyr::summarise(., billingtag_print = paste(billingtag_print, collapse = ", "))
+          if (rawbilling) {
+            dplyr::summarise(.,
+              billingtag_print = paste(billingtag_print, collapse = ", "),
+              billings = I(list(c(billing)))
+            )
+          } else {
+            dplyr::summarise(.,
+              billingtag_print = paste(billingtag_print, collapse = ", ")
+            )
+          }
         } else {
           .
         }
@@ -613,19 +642,33 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
     # merges appointments and visit and services lists
     {
       if (screentag) {
-        dplyr::select(
-          ., Patient, InternalID, Date, AppointmentTime,
-          Status, VisitType, Provider, DOB, Age, billingtag
-        )
+        if (rawbilling) {
+          dplyr::select(
+            ., Patient, InternalID, Date, AppointmentTime,
+            Status, VisitType, Provider, DOB, Age, billingtag, billings
+          )
+        } else {
+          dplyr::select(
+            ., Patient, InternalID, Date, AppointmentTime,
+            Status, VisitType, Provider, DOB, Age, billingtag
+          )
+        }
       } else {
         .
       }
     } %>>% {
       if (screentag_print) {
-        dplyr::select(
-          ., Patient, InternalID, Date, AppointmentTime,
-          Status, VisitType, Provider, DOB, Age, billingtag_print
-        )
+        if (rawbilling) {
+          dplyr::select(
+            ., Patient, InternalID, Date, AppointmentTime,
+            Status, VisitType, Provider, DOB, Age, billingtag_print, billings
+          )
+        } else {
+          dplyr::select(
+            ., Patient, InternalID, Date, AppointmentTime,
+            Status, VisitType, Provider, DOB, Age, billingtag_print
+          )
+        }
       } else {
         .
       }
