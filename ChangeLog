@@ -1,10 +1,14 @@
 Changelog
 
-0.3.4 - 25th April 2020
+0.3.4 - 26th April 2020
 =======================
 
 * rawbilling option for list_billings
-* filter out MBSItem == 0 for list_services
+* payerCode filtering option for list_billings
+* introduction changes for COVID-19 bulk-billing incentive
+  and list_billings payerCode filtering.
+  Note that COVID-19 code is currently entirely within
+  'DailyMeasure' frontend.
 
 0.3.3 - 10th April 2020
 =======================

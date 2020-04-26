@@ -47,6 +47,30 @@ steps_introduction_df <- function(element_name) {
       )),
       position = "auto"
     )) %>>%
+    rbind(data.frame(
+      element = element_name,
+      intro = c(paste(
+        shiny::tags$h4(
+          shiny::icon("gear"),
+          "Billing options"
+        ),
+        shiny::br(),
+        shiny::tags$h5("COVID-19 bulk-billing incentive"),
+        "Display potential opportunities to bill COVID-19 bulk billing incentives (10981/10982).",
+        "Searches for age criteria, pregnancy/post-natal status and some chronic",
+        "health conditions. Only one potentially qualifying condition is displayed",
+        shiny::br(), shiny::br(),
+        "This feature should probably be combined by turning off all",
+        shiny::strong("Billing types viewed"), "(below) except 'direct billiing'",
+        "because only direct ('bulk') billed",
+        "patients qualify for the bulk-billing incentive.",
+        shiny::hr(),
+        shiny::tags$h5("Billing types viewed"),
+        "Choose types of billing viewed, from 'Other' (which includes private),",
+        "direct ('bulk') billing, DVA and WorkCover. By default, all billing types are viewed."
+      )),
+      position = "auto"
+    )) %>>%
     rbind(DailyMeasure::steps_datatable_helpers(element_name)) %>>%
     rbind(data.frame(
       element = element_name,

@@ -13,7 +13,8 @@ list_billings(
   lazy,
   screentag,
   screentag_print,
-  rawbilling = FALSE
+  rawbilling = FALSE,
+  payerCode = 0:8
 )
 }
 \arguments{
@@ -40,6 +41,15 @@ list_billings(
 \item{screentag_print}{(default TRUE) optionally add a 'printable' description of 'action'}
 
 \item{rawbilling}{show vector of billings without print formatting in column 'billings'}
+
+\item{payerCode}{default is 0 to 8 (0:8)
+0 = unknown
+1 = private (patient)
+2 = Medicare direct billing 'bulk-billing'
+3 = Department of Veteran Affairs 'DVA'
+4 = WorkCover
+5 = private (head of family)
+8 = private (other)}
 }
 \value{
 list of appointments (with patient details)

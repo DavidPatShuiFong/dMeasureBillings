@@ -146,6 +146,14 @@ billed_appointments <- function(dMeasureBillings_obj,
 #' @param date_to default is $date_b end date, inclusive (date object)
 #' @param clinicians default is $clinicians. list of clinicians to view
 #' @param internalID default is NA (include all). vector of internal IDs to include (filter)
+#' @param payerCode default is 0 to 8 (0:8)
+#'  0 = unknown
+#'  1 = private (patient)
+#'  2 = Medicare direct billing 'bulk-billing'
+#'  3 = Department of Veteran Affairs 'DVA'
+#'  4 = WorkCover
+#'  5 = private (head of family)
+#'  8 = private (other)
 #' @param lazy if lazy=TRUE, then don't re-calculate $appointments_filtered to calculate
 #'
 #' @return list of services
@@ -154,8 +162,9 @@ list_services <- function(dMeasureBillings_obj,
                           date_from = NA, date_to = NA,
                           clinicians = NA,
                           internalID = NA,
+                          payerCode = 0:8,
                           lazy = FALSE) {
-  dMeasureBillings_obj$list_services(date_from, date_to, clinicians, internalID, lazy)
+  dMeasureBillings_obj$list_services(date_from, date_to, clinicians, internalID, payerCode, lazy)
 }
 .public(
   dMeasureBillings, "list_services",
@@ -163,6 +172,7 @@ list_services <- function(dMeasureBillings_obj,
              date_to = NA,
              clinicians = NA,
              internalID = NA,
+             payerCode = 0:8,
              lazy = FALSE) {
     if (is.na(date_from)) {
       date_from <- self$dM$date_a
@@ -194,11 +204,14 @@ list_services <- function(dMeasureBillings_obj,
         dplyr::select(UserID, Provider = Fullname) %>>% # just need two fields
         dplyr::filter(Provider %in% clinicians) # only users in clinicians list
 
+      payerCode <- c(payerCode, -1) # can't filter on empty vector
+
       services_list <- self$dM$db$servicesRaw %>>%
         dplyr::filter(
           ServiceDate >= date_from & ServiceDate <= date_to,
-          MBSItem != 0
+          PayerCode %in% payerCode,
         ) %>>%
+        dplyr::select(-c(PayerCode)) %>>%
         dplyr::collect()
 
       invoiceID <- c(services_list %>>% dplyr::pull(InvoiceID), -1)
@@ -312,6 +325,7 @@ list_services_allclinicians <- function(dMeasureBillings_obj,
 
       self$services_list_allclinicians <- self$dM$db$servicesRaw %>>%
         dplyr::filter(ServiceDate >= date_from & ServiceDate <= date_to) %>>%
+        dplyr::select(-c(PayerCode)) %>>%
         dplyr::inner_join(self$dM$db$invoices %>>% {
           if (is.na(internalID[[1]])) {
             .
@@ -356,7 +370,7 @@ list_services_allclinicians <- function(dMeasureBillings_obj,
   quote(
     shiny::eventReactive(
       c(self$dM$date_aR(), self$dM$date_bR()), {
-        self$list_services()
+        self$list_services_allclinicians()
       }
     )
   )
@@ -484,15 +498,23 @@ appointments_billings_sameday <- function(dMeasureBillings_obj, date_from, date_
 #' @param screentag (default FALSE) optionally add a fomantic/semantic HTML description of 'action'
 #' @param screentag_print (default TRUE) optionally add a 'printable' description of 'action'
 #' @param rawbilling show vector of billings without print formatting in column 'billings'
+#' @param payerCode default is 0 to 8 (0:8)
+#'  0 = unknown
+#'  1 = private (patient)
+#'  2 = Medicare direct billing 'bulk-billing'
+#'  3 = Department of Veteran Affairs 'DVA'
+#'  4 = WorkCover
+#'  5 = private (head of family)
+#'  8 = private (other)
 #'
 #' @return list of appointments (with patient details)
 #'   if rawbilling is TRUE, then return 'billings' collumn without print/HTML formatting
 #' @export
 list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, own_billings,
-                          lazy, screentag, screentag_print, rawbilling = FALSE) {
+                          lazy, screentag, screentag_print, rawbilling = FALSE, payerCode = 0:8) {
   dMeasureBillings_obj$list_billings(
     date_from, date_to, clinicians, own_billings,
-    lazy, screentag, screentag_print
+    lazy, screentag, screentag_print, rawbilling, payerCode
   )
 }
 .public(dMeasureBillings, "list_billings", function(date_from = NA,
@@ -502,7 +524,8 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
                                                     lazy = FALSE,
                                                     screentag = FALSE,
                                                     screentag_print = TRUE,
-                                                    rawbilling = FALSE) {
+                                                    rawbilling = FALSE,
+                                                    payerCode = 0:8) {
   if (is.na(date_from)) {
     date_from <- self$dM$date_a
   }
@@ -548,7 +571,7 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
 
   if (!lazy) {
     if (own_billings) {
-      self$list_services(date_from, date_to, clinicians, lazy = FALSE)
+      self$list_services(date_from, date_to, clinicians, payerCode = payerCode, lazy = FALSE)
     } else {
       self$list_services_allclinicians(date_from, date_to, internalID = apptID, lazy = FALSE)
     }

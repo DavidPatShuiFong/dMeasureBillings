@@ -55,6 +55,7 @@ dMeasureBillings class
   date_to = NA,
   clinicians = NA,
   internalID = NA,
+  payerCode = 0:8,
   lazy = FALSE
 )}\if{html}{\out{</div>}}
 }
@@ -103,7 +104,8 @@ dMeasureBillings class
   lazy = FALSE,
   screentag = FALSE,
   screentag_print = TRUE,
-  rawbilling = FALSE
+  rawbilling = FALSE,
+  payerCode = 0:8
 )}\if{html}{\out{</div>}}
 }
 
