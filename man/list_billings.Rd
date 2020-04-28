@@ -4,8 +4,18 @@
 \alias{list_billings}
 \title{Billings, appointments and visit combined view}
 \usage{
-list_billings(dMeasureBillings_obj, date_from, date_to, clinicians,
-  own_billings, lazy, screentag, screentag_print)
+list_billings(
+  dMeasureBillings_obj,
+  date_from,
+  date_to,
+  clinicians,
+  own_billings,
+  lazy,
+  screentag,
+  screentag_print,
+  rawbilling = FALSE,
+  payerCode = 0:8
+)
 }
 \arguments{
 \item{dMeasureBillings_obj}{dMeasureBillings R6 object}
@@ -29,9 +39,21 @@ list_billings(dMeasureBillings_obj, date_from, date_to, clinicians,
 \item{screentag}{(default FALSE) optionally add a fomantic/semantic HTML description of 'action'}
 
 \item{screentag_print}{(default TRUE) optionally add a 'printable' description of 'action'}
+
+\item{rawbilling}{show vector of billings without print formatting in column 'billings'}
+
+\item{payerCode}{default is 0 to 8 (0:8)
+0 = unknown
+1 = private (patient)
+2 = Medicare direct billing 'bulk-billing'
+3 = Department of Veteran Affairs 'DVA'
+4 = WorkCover
+5 = private (head of family)
+8 = private (other)}
 }
 \value{
 list of appointments (with patient details)
+  if rawbilling is TRUE, then return 'billings' collumn without print/HTML formatting
 }
 \description{
 filter to chosen date range and practitioners
