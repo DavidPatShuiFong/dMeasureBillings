@@ -102,9 +102,6 @@ dMeasureBillings class
   clinicians = NA,
   own_billings = NA,
   lazy = FALSE,
-  screentag = FALSE,
-  screentag_print = TRUE,
-  rawbilling = FALSE,
   payerCode = 0:8
 )}\if{html}{\out{</div>}}
 }
