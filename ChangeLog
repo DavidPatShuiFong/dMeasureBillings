@@ -1,5 +1,47 @@
 Changelog
 
+0.4.0 - 29th April 2020
+=======================
+
+Changes
+
+* tag_billings_list adds billingtag and billintag_print to a billing list
+* as a result, list_billings no longer has a screentag/screentag_print argument
+  and list_billings not longer has a rawbilling option
+  list_billings returns MBSitem, Description and Provider lists for
+  each appointment row
+
+0.3.4 - 26th April 2020
+=======================
+
+* rawbilling option for list_billings
+* payerCode filtering option for list_billings
+* introduction changes for COVID-19 bulk-billing incentive
+  and list_billings payerCode filtering.
+  Note that COVID-19 code is currently entirely within
+  'DailyMeasure' frontend.
+
+0.3.3 - 10th April 2020
+=======================
+
+* add rintrojs introduction (steps_introductioin_df)
+
+0.3.2 - 8th April 2020
+======================
+
+* fix error where list_billings only shows billings for patients in appointment book
+
+0.3.1 - 28th March 2020
+=======================
+
+* fix error if no internalID in list_billings
+
+0.3.0 - 19th March 2020
+=======================
+
+* InternalID filtering available for list_services and list_services_allclinicians
+* add Provider return to list_services_allclinicians
+
 0.2.2 - 4th March 2020
 ======================
 
