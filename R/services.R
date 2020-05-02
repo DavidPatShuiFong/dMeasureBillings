@@ -584,18 +584,24 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
   }
   df <- df %>>%
     dplyr::full_join(services_list %>>%
-      dplyr::group_by(Patient, InternalID, ServiceDate, DOB, Age) %>>%
-      # gathers services from the same date into a single row
-      dplyr::summarise(
-        MBSItem = I(list(c(MBSItem))),
-        MBSDescription = I(list(c(Description))),
-        MBSProvider = I(list(c(Provider)))
-      ) %>>%
-      # need I(list()) to place list in a data-frame
-      dplyr::ungroup() %>>%
-      dplyr::rename(Date = ServiceDate),
-    by = c("Patient", "InternalID", "Date", "DOB", "Age")
+        dplyr::rename(
+          Date = ServiceDate,
+          MBSDescription = Description,
+          MBSProvider = Provider
+          ),
+      by = c("Patient", "InternalID", "Date", "DOB", "Age")) %>>%
+    dplyr::group_by(
+      Patient, InternalID, Date, AppointmentTime,
+      Status, VisitType, Provider, DOB, Age
     ) %>>%
+    # gathers services from the same date/time into a single row
+    dplyr::summarise(
+      MBSItem = I(list(c(MBSItem))),
+      MBSDescription = I(list(c(MBSDescription))),
+      MBSProvider = I(list(c(MBSProvider)))
+    ) %>>%
+    # need I(list()) to place list in a data-frame
+    dplyr::ungroup() %>>%
     # merges appointments and visit and services lists
     dplyr::select(
       Patient, InternalID, Date, AppointmentTime,
@@ -645,10 +651,7 @@ tag_billings_list <- function(billings_list, screentag = FALSE, screentag_print 
         billingtag = mapply(
           paste,
           dplyr::if_else(
-            sapply(
-              MBSItem,
-              is.null
-            ),
+            is.na(MBSItem),
             # need to sapply because is.null doesn't deal with lists/vectors
             # https://stackoverflow.com/questions/30716377/how-to-detect-null-values-in-a-vector
             list(character(0)),
@@ -677,10 +680,7 @@ tag_billings_list <- function(billings_list, screentag = FALSE, screentag_print 
         billingtag_print = mapply(
           paste,
           dplyr::if_else(
-            sapply(
-              MBSItem,
-              is.null
-            ),
+            is.na(MBSItem),
             list(character(0)),
             mapply(function(...) list(paste0(...)),
               MBSItem, " [",
