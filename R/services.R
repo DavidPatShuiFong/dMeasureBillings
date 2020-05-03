@@ -629,6 +629,78 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
   )
 )
 
+#' List whether patients had a recent GPMP (care plan)
+#'
+#' @param dMeasureBillings_obj dMeasureBillings R6 object
+#' @param appointments dataframe of appointments $InternalID and $Date
+#'  if no parameter provided, derives from $appointments_filtered
+#' @param months_min minimum age in months (inclusive, 'from')
+#' @param months_max maximum age in months (exclusive, 'up to')
+#'
+#' @return a vector of numbers, whih care internalID
+#' @export
+gpmp_list <- function(dMeasureBillings_obj, appointments = NULL,
+  months_min = 0, months_max = 12) {
+  dMeasureBillings_obj$list_gpmp(
+    appointments, months_min, months_max
+  )
+}
+.public(dMeasureBillings, "gpmp_list", function(
+  appointments = NULL,
+  months_min = 0, months_max = 12) {
+
+  if (is.null(appointments)) {
+    appointments <- self$dM$appointments_filtered %>>%
+      dplyr::select(InternalID, AppointmentDate) %>>%
+      dplyr::rename(Date = AppointmentDate)
+    # just needs $InternalID and $Date
+  }
+
+  clinicians <- self$dM$clinicians
+  date_to <- max(appointments$Date, self$dM$date_b)
+  # maximum (most recent) of chosen dates, or chosen 'date range'
+  date_from <- date_to
+
+  x <- self$dM$check_subscription(
+    clinicians,
+    date_from, date_to,
+    adjust_days = 120,
+    adjustdate = FALSE # don't adjust chosen date range
+  )
+  # check subscription, which depends on selected
+  # clinicians and selected date range
+  # adjustdate is TRUE, so should provoke a change
+  # in the appointment list if in reactive environment
+  if (x$changedate) {
+    # this will happen if dates are changed
+    appointments$Date <- min(appointments$Date, x$date_to)
+    # earlier of the dates
+    warning("A chosen user has no subscription for chosen date range. Empty vector returned")
+    return(numeric(0))
+  }
+
+  intID <- appointments %>>% dplyr::pull(InternalID) %>>% c(-1)
+
+  intID <- self$dM$db$services %>>%
+    dplyr::filter(
+      MBSItem == 721, # care plan item number
+      InternalID %in% intID
+      ) %>>%
+    dplyr::select(InternalID, ServiceDate) %>>%
+    dplyr::collect() %>>%
+    dplyr::left_join(
+      appointments,
+      by = "InternalID") %>>%
+    dplyr::mutate(AgeInMonths = dMeasure::calc_age_months(as.Date(ServiceDate), as.Date(Date))) %>>%
+    dplyr::filter(AgeInMonths >= months_min & AgeInMonths < months_max) %>>%
+    dplyr::pull(InternalID) %>>%
+    unique()
+
+  return(intID)
+
+})
+
+
 #' tags a billlings list for printing or HTML screen display
 #'
 #' @param dMeasureBillings_obj dMeasureBillings R6 object

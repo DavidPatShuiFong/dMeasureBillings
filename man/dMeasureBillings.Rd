@@ -18,6 +18,7 @@ dMeasureBillings class
 \item \href{#method-list_services_allclinicians}{\code{dMeasureBillings$list_services_allclinicians()}}
 \item \href{#method-appointments_billings_sameday}{\code{dMeasureBillings$appointments_billings_sameday()}}
 \item \href{#method-list_billings}{\code{dMeasureBillings$list_billings()}}
+\item \href{#method-gpmp_list}{\code{dMeasureBillings$gpmp_list()}}
 \item \href{#method-clone}{\code{dMeasureBillings$clone()}}
 }
 }
@@ -103,6 +104,19 @@ dMeasureBillings class
   own_billings = NA,
   lazy = FALSE,
   payerCode = 0:8
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-gpmp_list"></a>}}
+\if{latex}{\out{\hypertarget{method-gpmp_list}{}}}
+\subsection{Method \code{gpmp_list()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dMeasureBillings$gpmp_list(
+  appointments = NULL,
+  months_min = 0,
+  months_max = 12
 )}\if{html}{\out{</div>}}
 }
 
