@@ -1,5 +1,21 @@
 Changelog
 
+0.4.1 - 3rd May 2020
+====================
+
+* $gpmp_list check for recent GPMP
+
+0.4.0 - 29th April 2020
+=======================
+
+Changes
+
+* tag_billings_list adds billingtag and billintag_print to a billing list
+* as a result, list_billings no longer has a screentag/screentag_print argument
+  and list_billings not longer has a rawbilling option
+  list_billings returns MBSitem, Description and Provider lists for
+  each appointment row
+
 0.3.4 - 26th April 2020
 =======================
 

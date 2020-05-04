@@ -497,7 +497,6 @@ appointments_billings_sameday <- function(dMeasureBillings_obj, date_from, date_
 #' @param lazy if TRUE, then do not recalculate appointment list. otherwise, re-calculate
 #' @param screentag (default FALSE) optionally add a fomantic/semantic HTML description of 'action'
 #' @param screentag_print (default TRUE) optionally add a 'printable' description of 'action'
-#' @param rawbilling show vector of billings without print formatting in column 'billings'
 #' @param payerCode default is 0 to 8 (0:8)
 #'  0 = unknown
 #'  1 = private (patient)
@@ -507,14 +506,14 @@ appointments_billings_sameday <- function(dMeasureBillings_obj, date_from, date_
 #'  5 = private (head of family)
 #'  8 = private (other)
 #'
-#' @return list of appointments (with patient details)
-#'   if rawbilling is TRUE, then return 'billings' collumn without print/HTML formatting
+#' @return list of appointments (with patient details) and attached billings
+#'  billings are in list() of MBSItem, Description and Provider
 #' @export
 list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, own_billings,
-                          lazy, screentag, screentag_print, rawbilling = FALSE, payerCode = 0:8) {
+                          lazy, payerCode = 0:8) {
   dMeasureBillings_obj$list_billings(
     date_from, date_to, clinicians, own_billings,
-    lazy, screentag, screentag_print, rawbilling, payerCode
+    lazy, payerCode
   )
 }
 .public(dMeasureBillings, "list_billings", function(date_from = NA,
@@ -522,9 +521,6 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
                                                     clinicians = NA,
                                                     own_billings = NA,
                                                     lazy = FALSE,
-                                                    screentag = FALSE,
-                                                    screentag_print = TRUE,
-                                                    rawbilling = FALSE,
                                                     payerCode = 0:8) {
   if (is.na(date_from)) {
     date_from <- self$dM$date_a
@@ -586,116 +582,32 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
     # because the second dataframe has been restricted by apptID
     # and it is possible that items in self$services_list do not have an appointment
   }
-  if (rawbilling) {
-    services_list <- services_list %>>%
-      dplyr::mutate(billing = MBSItem) # a copy of MBSitem
-    # used to generate 'billings' column if 'rawbilling' option is chosen
-  }
   df <- df %>>%
-    dplyr::full_join(services_list %>>% {
-      if (screentag) {
-        # if 'screen' (not print) display
-        # and 'own_billings'. if own_billings is FALSE then
-        #  the tags will be provided by self$service_list_allclinicians below
-        dplyr::mutate(.,
-          billingtag =
-            dMeasure::semantic_button(
-              MBSItem,
-              colour = "green",
-              popuphtml = paste0(
-                "<h4>", ServiceDate,
-                "</h4><p><font size=\'+0\'>",
-                Description, " (",
-                Provider, ")</p>"
-              )
-            )
-        )
-      } else {
-        .
-      }
-    } %>>% {
-      if (screentag_print) {
-        dplyr::mutate(., billingtag_print = paste0(
-          MBSItem, " [",
-          Provider, "]"
-        ))
-      } else {
-        .
-      }
-    } %>>%
-      dplyr::select(-c(MBSItem, Description, Provider)) %>>%
-      dplyr::group_by(Patient, InternalID, ServiceDate, DOB, Age) %>>%
-      # gathers services from the same date into a single row
-      {
-        if (screentag) {
-          if (rawbilling) {
-            dplyr::summarise(.,
-              billingtag = paste(billingtag, collapse = ""),
-              billings = I(list(c(billing)))
-              # need I(list()) to place list in a data-frame
-            )
-          } else {
-            dplyr::summarise(.,
-              billingtag = paste(billingtag, collapse = "")
-            )
-          }
-        } else {
-          .
-        }
-      } %>>% {
-        if (screentag_print) {
-          if (rawbilling) {
-            dplyr::summarise(.,
-              billingtag_print = paste(billingtag_print, collapse = ", "),
-              billings = I(list(c(billing)))
-            )
-          } else {
-            dplyr::summarise(.,
-              billingtag_print = paste(billingtag_print, collapse = ", ")
-            )
-          }
-        } else {
-          .
-        }
-      } %>>%
-      dplyr::ungroup() %>>%
-      dplyr::rename(Date = ServiceDate),
-    by = c("Patient", "InternalID", "Date", "DOB", "Age")
+    dplyr::full_join(services_list %>>%
+        dplyr::rename(
+          Date = ServiceDate,
+          MBSDescription = Description,
+          MBSProvider = Provider
+          ),
+      by = c("Patient", "InternalID", "Date", "DOB", "Age")) %>>%
+    dplyr::group_by(
+      Patient, InternalID, Date, AppointmentTime,
+      Status, VisitType, Provider, DOB, Age
     ) %>>%
+    # gathers services from the same date/time into a single row
+    dplyr::summarise(
+      MBSItem = I(list(c(MBSItem))),
+      MBSDescription = I(list(c(MBSDescription))),
+      MBSProvider = I(list(c(MBSProvider)))
+    ) %>>%
+    # need I(list()) to place list in a data-frame
+    dplyr::ungroup() %>>%
     # merges appointments and visit and services lists
-    {
-      if (screentag) {
-        if (rawbilling) {
-          dplyr::select(
-            ., Patient, InternalID, Date, AppointmentTime,
-            Status, VisitType, Provider, DOB, Age, billingtag, billings
-          )
-        } else {
-          dplyr::select(
-            ., Patient, InternalID, Date, AppointmentTime,
-            Status, VisitType, Provider, DOB, Age, billingtag
-          )
-        }
-      } else {
-        .
-      }
-    } %>>% {
-      if (screentag_print) {
-        if (rawbilling) {
-          dplyr::select(
-            ., Patient, InternalID, Date, AppointmentTime,
-            Status, VisitType, Provider, DOB, Age, billingtag_print, billings
-          )
-        } else {
-          dplyr::select(
-            ., Patient, InternalID, Date, AppointmentTime,
-            Status, VisitType, Provider, DOB, Age, billingtag_print
-          )
-        }
-      } else {
-        .
-      }
-    }
+    dplyr::select(
+      Patient, InternalID, Date, AppointmentTime,
+      Status, VisitType, Provider, DOB, Age,
+      MBSItem, MBSDescription, MBSProvider
+    )
 
   self$billings_list <- df
 
@@ -716,3 +628,143 @@ list_billings <- function(dMeasureBillings_obj, date_from, date_to, clinicians, 
     )
   )
 )
+
+#' List whether patients had a recent GPMP (care plan)
+#'
+#' @param dMeasureBillings_obj dMeasureBillings R6 object
+#' @param appointments dataframe of appointments $InternalID and $Date
+#'  if no parameter provided, derives from $appointments_filtered
+#' @param months_min minimum age in months (inclusive, 'from')
+#' @param months_max maximum age in months (exclusive, 'up to')
+#'
+#' @return a vector of numbers, whih care internalID
+#' @export
+gpmp_list <- function(dMeasureBillings_obj, appointments = NULL,
+  months_min = 0, months_max = 12) {
+  dMeasureBillings_obj$list_gpmp(
+    appointments, months_min, months_max
+  )
+}
+.public(dMeasureBillings, "gpmp_list", function(
+  appointments = NULL,
+  months_min = 0, months_max = 12) {
+
+  if (is.null(appointments)) {
+    appointments <- self$dM$appointments_filtered %>>%
+      dplyr::select(InternalID, AppointmentDate) %>>%
+      dplyr::rename(Date = AppointmentDate)
+    # just needs $InternalID and $Date
+  }
+
+  clinicians <- self$dM$clinicians
+  date_to <- max(appointments$Date, self$dM$date_b)
+  # maximum (most recent) of chosen dates, or chosen 'date range'
+  date_from <- date_to
+
+  x <- self$dM$check_subscription(
+    clinicians,
+    date_from, date_to,
+    adjust_days = 120,
+    adjustdate = FALSE # don't adjust chosen date range
+  )
+  # check subscription, which depends on selected
+  # clinicians and selected date range
+  # adjustdate is TRUE, so should provoke a change
+  # in the appointment list if in reactive environment
+  if (x$changedate) {
+    # this will happen if dates are changed
+    appointments$Date <- min(appointments$Date, x$date_to)
+    # earlier of the dates
+    warning("A chosen user has no subscription for chosen date range. Empty vector returned")
+    return(numeric(0))
+  }
+
+  intID <- appointments %>>% dplyr::pull(InternalID) %>>% c(-1)
+
+  intID <- self$dM$db$services %>>%
+    dplyr::filter(
+      MBSItem == 721, # care plan item number
+      InternalID %in% intID
+      ) %>>%
+    dplyr::select(InternalID, ServiceDate) %>>%
+    dplyr::collect() %>>%
+    dplyr::left_join(
+      appointments,
+      by = "InternalID") %>>%
+    dplyr::mutate(AgeInMonths = dMeasure::calc_age_months(as.Date(ServiceDate), as.Date(Date))) %>>%
+    dplyr::filter(AgeInMonths >= months_min & AgeInMonths < months_max) %>>%
+    dplyr::pull(InternalID) %>>%
+    unique()
+
+  return(intID)
+
+})
+
+
+#' tags a billlings list for printing or HTML screen display
+#'
+#' @param dMeasureBillings_obj dMeasureBillings R6 object
+#' @param billings_list dataframe. requires ServiceDate and
+#'   lists (MBSItem, MBSDescription, MBSProvider)
+#' @param screentag (default FALSE) optionally add a fomantic/semantic HTML description of 'action'
+#' @param screentag_print (default TRUE) optionally add a 'printable' description of 'action'
+#'
+#' @return tagged billings list
+#'  adds billingtag_print for 'print' view
+#'  adds billingtag for HTML view using fomantic/semantic buttons
+#' @export
+tag_billings_list <- function(billings_list, screentag = FALSE, screentag_print = TRUE) {
+  if (screentag) {
+    billings_list <- billings_list %>>%
+      # if 'screen' (not print) display
+      # and 'own_billings'. if own_billings is FALSE then
+      #  the tags will be provided by self$service_list_allclinicians below
+      dplyr::mutate(
+        billingtag = mapply(
+          paste,
+          dplyr::if_else(
+            is.na(MBSItem),
+            # need to sapply because is.null doesn't deal with lists/vectors
+            # https://stackoverflow.com/questions/30716377/how-to-detect-null-values-in-a-vector
+            list(character(0)),
+            mapply(function(...) list(dMeasure::semantic_button(...)),
+              MBSItem,
+              colour = "green",
+              popuphtml = mapply(
+                paste0,
+                "<h4>", Date,
+                "</h4><p><font size=\'+0\'>",
+                MBSDescription, " (",
+                MBSProvider, ")</p>",
+                USE.NAMES = FALSE
+              )
+            )
+          ),
+          collapse = "",
+          USE.NAMES = FALSE
+        )
+      )
+  }
+
+  if (screentag_print) {
+    billings_list <- billings_list %>>%
+      dplyr::mutate(
+        billingtag_print = mapply(
+          paste,
+          dplyr::if_else(
+            is.na(MBSItem),
+            list(character(0)),
+            mapply(function(...) list(paste0(...)),
+              MBSItem, " [",
+              MBSProvider, "]",
+              USE.NAMES = FALSE
+            )
+          ),
+          collapse = ", ",
+          USE.NAMES = FALSE
+        )
+      )
+  }
+
+  return(billings_list)
+}

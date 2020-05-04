@@ -11,9 +11,6 @@ list_billings(
   clinicians,
   own_billings,
   lazy,
-  screentag,
-  screentag_print,
-  rawbilling = FALSE,
   payerCode = 0:8
 )
 }
@@ -36,12 +33,6 @@ list_billings(
 
 \item{lazy}{if TRUE, then do not recalculate appointment list. otherwise, re-calculate}
 
-\item{screentag}{(default FALSE) optionally add a fomantic/semantic HTML description of 'action'}
-
-\item{screentag_print}{(default TRUE) optionally add a 'printable' description of 'action'}
-
-\item{rawbilling}{show vector of billings without print formatting in column 'billings'}
-
 \item{payerCode}{default is 0 to 8 (0:8)
 0 = unknown
 1 = private (patient)
@@ -50,10 +41,14 @@ list_billings(
 4 = WorkCover
 5 = private (head of family)
 8 = private (other)}
+
+\item{screentag}{(default FALSE) optionally add a fomantic/semantic HTML description of 'action'}
+
+\item{screentag_print}{(default TRUE) optionally add a 'printable' description of 'action'}
 }
 \value{
-list of appointments (with patient details)
-  if rawbilling is TRUE, then return 'billings' collumn without print/HTML formatting
+list of appointments (with patient details) and attached billings
+ billings are in list() of MBSItem, Description and Provider
 }
 \description{
 filter to chosen date range and practitioners
