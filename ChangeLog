@@ -1,5 +1,15 @@
 Changelog
 
+0.4.2 - 17th May 2020
+=====================
+
+* add .payerCode, payerCode and payerCodeR
+  private/active/reactive versions of payerCode
+  used by $list_billings and $list_services
+* changes for check_subscription, no longer changes
+  date if no valid subscription for chosen clinicians
+  and date range
+
 0.4.1 - 3rd May 2020
 ====================
 
