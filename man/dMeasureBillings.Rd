@@ -71,7 +71,7 @@ dMeasureBillings class
   date_from = NA,
   date_to = NA,
   internalID = NA,
-  lazy = FALSE
+  payerCode = NA
 )}\if{html}{\out{</div>}}
 }
 

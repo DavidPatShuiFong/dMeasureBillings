@@ -211,7 +211,7 @@ list_services <- function(dMeasureBillings_obj,
       services_list <- self$dM$db$servicesRaw %>>%
         dplyr::filter(
           ServiceDate >= date_from & ServiceDate <= date_to,
-          PayerCode %in% payerCode,
+          PayerCode %in% payerCode
         ) %>>%
         dplyr::select(-c(PayerCode)) %>>%
         dplyr::collect()
@@ -292,18 +292,25 @@ list_services <- function(dMeasureBillings_obj,
 #' @param date_from default is $date_a. start date, inclusive (date object)
 #' @param date_to default is $date_b end date, inclusive (date object)
 #' @param internalID default is NA (include all). otherwise, a vector of internal IDs to include (filter)
-#' @param lazy if lazy=TRUE, then don't re-calculate $appointments_filtered to calculate
+#' @param payerCode default is $payerCode
+#'  0 = unknown
+#'  1 = private (patient)
+#'  2 = Medicare direct billing 'bulk-billing'
+#'  3 = Department of Veteran Affairs 'DVA'
+#'  4 = WorkCover
+#'  5 = private (head of family)
+#'  8 = private (other)
 #'
 #' @return list of services
 #' @export
 list_services_allclinicians <- function(dMeasureBillings_obj,
                                         date_from = NA, date_to = NA,
                                         internalID = NA,
-                                        lazy = FALSE) {
+                                        payerCode = NA) {
   dMeasureBillings_obj$list_services_allclinicians(
     date_from, date_to,
     internalID,
-    lazy
+    payerCode
   )
 }
 .public(
@@ -311,13 +318,17 @@ list_services_allclinicians <- function(dMeasureBillings_obj,
   function(date_from = NA,
              date_to = NA,
              internalID = NA,
-             lazy = FALSE) {
+             payerCode = NA) {
     if (is.na(date_from)) {
       date_from <- self$dM$date_a
     }
     if (is.na(date_to)) {
       date_to <- self$dM$date_b
     }
+    if (length(payerCode) > 0 && is.na(payerCode[[1]])) {
+      payerCode <- self$payerCode
+    }
+    payerCode <- c(payerCode, -1) # can't filter on empty vector
 
     if (self$dM$emr_db$is_open()) {
       # only if EMR database is open
@@ -326,7 +337,10 @@ list_services_allclinicians <- function(dMeasureBillings_obj,
         dplyr::select(UserID, Provider = Fullname)
 
       self$services_list_allclinicians <- self$dM$db$servicesRaw %>>%
-        dplyr::filter(ServiceDate >= date_from & ServiceDate <= date_to) %>>%
+        dplyr::filter(
+          ServiceDate >= date_from & ServiceDate <= date_to,
+          PayerCode %in% payerCode
+        ) %>>%
         dplyr::select(-c(PayerCode)) %>>%
         dplyr::inner_join(self$dM$db$invoices %>>% {
           if (is.na(internalID[[1]])) {
@@ -367,16 +381,17 @@ list_services_allclinicians <- function(dMeasureBillings_obj,
     return(self$services_list_allclinicians)
   }
 )
-.reactive_event(
-  dMeasureBillings, "services_list_allcliniciansR",
-  quote(
-    shiny::eventReactive(
-      c(self$dM$date_aR(), self$dM$date_bR()), {
-        self$list_services_allclinicians()
-      }
-    )
-  )
-)
+#.reactive_event(
+#  dMeasureBillings, "services_list_allcliniciansR",
+#  quote(
+#    shiny::eventReactive(
+#      c(self$dM$date_aR(), self$dM$date_bR()), {
+#        browser()
+#        self$list_services_allclinicians()
+#      }
+#    )
+#  )
+#)
 
 #' Billings done on same day as appointments or visit
 #'
@@ -602,12 +617,14 @@ list_billings <- function(dMeasureBillings_obj,
     )
   # this join just adds VisitType
   apptID <- df %>>% dplyr::pull(InternalID) %>>% c(-1)
-  if (!lazy) {
-    if (own_billings) {
+  if (!lazy && own_billings) {
       self$list_services(date_from, date_to, clinicians, payerCode = payerCode, lazy = FALSE)
-    } else {
-      self$list_services_allclinicians(date_from, date_to, internalID = apptID, lazy = FALSE)
-    }
+  }
+  if (!own_billings) {
+      self$list_services_allclinicians(
+        date_from, date_to,
+        internalID = apptID, payerCode = payerCode
+      )
   }
   if (own_billings) {
     services_list <- self$services_list
@@ -747,6 +764,7 @@ gpmp_list <- function(dMeasureBillings_obj, appointments = NULL,
 #'  adds billingtag for HTML view using fomantic/semantic buttons
 #' @export
 tag_billings_list <- function(billings_list, screentag = FALSE, screentag_print = TRUE) {
+  browser()
   if (screentag) {
     billings_list <- billings_list %>>%
       # if 'screen' (not print) display
@@ -760,18 +778,16 @@ tag_billings_list <- function(billings_list, screentag = FALSE, screentag_print 
             # need to sapply because is.null doesn't deal with lists/vectors
             # https://stackoverflow.com/questions/30716377/how-to-detect-null-values-in-a-vector
             list(character(0)),
-            mapply(function(...) list(dMeasure::semantic_button(...)),
+            c(mapply(function(...) list(dMeasure::semantic_button(...)),
               MBSItem,
-              colour = "green",
-              popuphtml = mapply(
-                paste0,
-                "<h4>", Date,
-                "</h4><p><font size=\'+0\'>",
-                MBSDescription, " (",
-                MBSProvider, ")</p>",
-                USE.NAMES = FALSE
-              )
-            )
+              colour = "green"#,
+#              popuphtml = paste0(
+#                "<h4>", Date,
+#                "</h4><p><font size=\'+0\'>",
+#                MBSDescription, " (",
+#                MBSProvider, ")</p>"
+#              )
+            ))
           ),
           collapse = "",
           USE.NAMES = FALSE
