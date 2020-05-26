@@ -764,8 +764,27 @@ gpmp_list <- function(dMeasureBillings_obj, appointments = NULL,
 #'  adds billingtag for HTML view using fomantic/semantic buttons
 #' @export
 tag_billings_list <- function(billings_list, screentag = FALSE, screentag_print = TRUE) {
-  browser()
   if (screentag) {
+
+    billings_list$popuptag <- list(rep(NA, nrow(billings_list)))
+    # pre-populate, ready to receive arbitrary lists
+    for (i in 1:nrow(billings_list)) {
+      if (!is.na(billings_list$MBSItem[i])) {
+        billings_list$popuptag[[i]] <-
+          I(mapply(
+            paste0,
+            "<h4>",
+            billings_list$Date[i],
+            "</h4>",
+            "<p><font size=\'+0\'>",
+            unlist(billings_list$MBSDescription[i]), " (",
+            unlist(billings_list$MBSProvider[i]), ")",
+            "</p>",
+            USE.NAMES = FALSE
+          ))
+      }
+    }
+
     billings_list <- billings_list %>>%
       # if 'screen' (not print) display
       # and 'own_billings'. if own_billings is FALSE then
@@ -780,19 +799,15 @@ tag_billings_list <- function(billings_list, screentag = FALSE, screentag_print 
             list(character(0)),
             c(mapply(function(...) list(dMeasure::semantic_button(...)),
               MBSItem,
-              colour = "green"#,
-#              popuphtml = paste0(
-#                "<h4>", Date,
-#                "</h4><p><font size=\'+0\'>",
-#                MBSDescription, " (",
-#                MBSProvider, ")</p>"
-#              )
+              colour = "green",
+              popuphtml = popuptag
             ))
           ),
           collapse = "",
           USE.NAMES = FALSE
         )
-      )
+      ) %>>%
+      dplyr::select(-c(popuptag))
   }
 
   if (screentag_print) {

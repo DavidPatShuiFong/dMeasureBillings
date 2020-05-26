@@ -1,6 +1,6 @@
 Changelog
 
-0.4.2 - 17th May 2020
+0.4.2 - 26th May 2020
 =====================
 
 * add .payerCode, payerCode and payerCodeR
@@ -9,6 +9,12 @@ Changelog
 * changes for check_subscription, no longer changes
   date if no valid subscription for chosen clinicians
   and date range
+* list_services_allclinicians
+  payerCode argument
+  removal of 'lazy' mode
+  removal of reactive version 'services_list_allcliniciansR'
+* bugfix - correction of HTML popup display of billing if there
+  is only a single row of billing to display (unusual edge case...)
 
 0.4.1 - 3rd May 2020
 ====================
