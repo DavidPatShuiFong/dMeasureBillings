@@ -10,7 +10,7 @@ list_services(
   date_to = NA,
   clinicians = NA,
   internalID = NA,
-  payerCode = 0:8,
+  payerCode = NA,
   lazy = FALSE
 )
 }
@@ -25,7 +25,7 @@ list_services(
 
 \item{internalID}{default is NA (include all). vector of internal IDs to include (filter)}
 
-\item{payerCode}{default is 0 to 8 (0:8)
+\item{payerCode}{default is $payerCode
 0 = unknown
 1 = private (patient)
 2 = Medicare direct billing 'bulk-billing'

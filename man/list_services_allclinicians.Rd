@@ -9,7 +9,7 @@ list_services_allclinicians(
   date_from = NA,
   date_to = NA,
   internalID = NA,
-  lazy = FALSE
+  payerCode = NA
 )
 }
 \arguments{
@@ -21,7 +21,14 @@ list_services_allclinicians(
 
 \item{internalID}{default is NA (include all). otherwise, a vector of internal IDs to include (filter)}
 
-\item{lazy}{if lazy=TRUE, then don't re-calculate $appointments_filtered to calculate}
+\item{payerCode}{default is $payerCode
+0 = unknown
+1 = private (patient)
+2 = Medicare direct billing 'bulk-billing'
+3 = Department of Veteran Affairs 'DVA'
+4 = WorkCover
+5 = private (head of family)
+8 = private (other)}
 }
 \value{
 list of services

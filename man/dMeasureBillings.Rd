@@ -56,7 +56,7 @@ dMeasureBillings class
   date_to = NA,
   clinicians = NA,
   internalID = NA,
-  payerCode = 0:8,
+  payerCode = NA,
   lazy = FALSE
 )}\if{html}{\out{</div>}}
 }
@@ -71,7 +71,7 @@ dMeasureBillings class
   date_from = NA,
   date_to = NA,
   internalID = NA,
-  lazy = FALSE
+  payerCode = NA
 )}\if{html}{\out{</div>}}
 }
 
@@ -103,7 +103,7 @@ dMeasureBillings class
   clinicians = NA,
   own_billings = NA,
   lazy = FALSE,
-  payerCode = 0:8
+  payerCode = NA
 )}\if{html}{\out{</div>}}
 }
 

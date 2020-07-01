@@ -6,12 +6,12 @@
 \usage{
 list_billings(
   dMeasureBillings_obj,
-  date_from,
-  date_to,
-  clinicians,
-  own_billings,
-  lazy,
-  payerCode = 0:8
+  date_from = NA,
+  date_to = NA,
+  clinicians = NA,
+  own_billings = NA,
+  lazy = FALSE,
+  payerCode = NA
 )
 }
 \arguments{
@@ -33,7 +33,7 @@ list_billings(
 
 \item{lazy}{if TRUE, then do not recalculate appointment list. otherwise, re-calculate}
 
-\item{payerCode}{default is 0 to 8 (0:8)
+\item{payerCode}{default is $payerCode
 0 = unknown
 1 = private (patient)
 2 = Medicare direct billing 'bulk-billing'
