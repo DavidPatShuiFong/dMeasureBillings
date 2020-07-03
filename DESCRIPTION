@@ -13,6 +13,7 @@ Imports:
     dbplyr,
     R6,
     pipeR,
+    data.table,
     dMeasure
 Suggests:
     shiny
@@ -22,4 +23,5 @@ Collate:
     'Billings.R'
     'introduction.R'
     'services.R'
+    'userInterface.R'
     'utils-pipe.R'
