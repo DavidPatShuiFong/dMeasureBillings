@@ -121,7 +121,7 @@ datatableServer <- function(input, output, session, dMBillings) {
     shinyWidgets::dropdown(
       inputId = ns("billing_options_dropdown"),
       icon = icon("gear"),
-      label = "Billing options",
+      label = "Billing settings",
       shinyWidgets::checkboxGroupButtons(
         inputId = ns("billing_reminders_chosen"),
         label = "Billing Reminders",
