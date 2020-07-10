@@ -1,5 +1,18 @@
 # News
 
+# 0.4.4
+8th July 2020
+
+## Changes
+
+* change dropdown from 'options' to 'settings'
+
+# 0.4.3
+3rd July 2020
+
+* move user interface functions from DailyMeasure package to dMBillings
+  + user interface functions found in `userInterface.R`
+
 # 0.4.2
 26th May 2020
 

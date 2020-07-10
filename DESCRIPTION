@@ -1,7 +1,7 @@
 Package: dMeasureBillings
 Type: Package
 Title: Billings module for dMeasure
-Version: 0.4.2
+Version: 0.4.4
 Author: David Fong
 Maintainer: David Fong <vkelim@bigpond.com>
 Description: List services (billings) provided by clinicians
@@ -13,6 +13,7 @@ Imports:
     dbplyr,
     R6,
     pipeR,
+    data.table,
     dMeasure
 Suggests:
     shiny
@@ -22,4 +23,5 @@ Collate:
     'Billings.R'
     'introduction.R'
     'services.R'
+    'userInterface.R'
     'utils-pipe.R'
