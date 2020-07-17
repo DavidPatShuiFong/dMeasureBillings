@@ -1,5 +1,12 @@
 # News
 
+# 0.4.5
+16th July 2020
+
+## Changes
+
+* change `shinyWidgets::dropdown` to `shinyWidgets::dropMenu`
+
 # 0.4.4
 8th July 2020
 
