@@ -1,7 +1,7 @@
 Package: dMeasureBillings
 Type: Package
 Title: Billings module for dMeasure
-Version: 0.4.5
+Version: 0.5.0
 Author: David Fong
 Maintainer: David Fong <vkelim@bigpond.com>
 Description: List services (billings) provided by clinicians
@@ -16,7 +16,11 @@ Imports:
     data.table,
     dMeasure
 Suggests:
-    shiny
+    shiny,
+    shinydashboard,
+    shinyWidgets,
+    shinycssloaders,
+    DT
 RoxygenNote: 7.1.0.9000
 Collate: 
     'r6_helpers.R'
