@@ -19,7 +19,6 @@ Suggests:
     shiny,
     shinydashboard,
     shinyWidgets,
-    shinycssloaders,
     DT
 RoxygenNote: 7.1.0.9000
 Collate: 
