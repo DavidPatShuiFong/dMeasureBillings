@@ -4,14 +4,10 @@
 \alias{datatableServer}
 \title{Billings module - server for UI}
 \usage{
-datatableServer(input, output, session, dMBillings)
+datatableServer(id, dMBillings)
 }
 \arguments{
-\item{input}{as required by Shiny modules}
-
-\item{output}{as required by Shiny modules}
-
-\item{session}{as required by Shiny modules}
+\item{id}{id string}
 
 \item{dMBillings}{dMeasureCustom R6 object}
 }
