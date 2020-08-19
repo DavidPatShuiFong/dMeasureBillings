@@ -1,5 +1,24 @@
 # News
 
+# 0.5.0
+25th July 2020
+
+## New
+
+* `dMeasureIntegration` for auto-loading
+
+## Changes
+
+* update Suggests list in `DESCRIPTION`
+* remove use of `shinycssloaders`
+
+# 0.4.5
+17th July 2020
+
+## Changes
+
+* change `shinyWidgets::dropdown` to `shinyWidgets::dropMenu`
+
 # 0.4.4
 8th July 2020
 
