@@ -725,7 +725,7 @@ gpmp_list <- function(dMeasureBillings_obj, appointments = NULL,
     # this will happen if dates are changed
     appointments$Date <- min(appointments$Date, x$date_to)
     # earlier of the dates
-    warning("A chosen user has no subscription for chosen date range. Empty vector returned")
+    warning("A chosen user is not registered/subscribed for chosen date range. Empty vector returned")
     return(numeric(0))
   }
 
